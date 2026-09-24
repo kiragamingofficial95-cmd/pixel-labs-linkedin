@@ -14,6 +14,19 @@
 
 const fs = require("fs");
 const path = require("path");
+
+// Minimal .env loader (no dependency): loads ../.env so the CLI works out of the box.
+(function loadEnv() {
+  try {
+    const envFile = path.join(__dirname, "..", ".env");
+    if (!fs.existsSync(envFile)) return;
+    for (const line of fs.readFileSync(envFile, "utf-8").split("\n")) {
+      const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+      if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+    }
+  } catch {}
+})();
+
 const { generatePost } = require("./groq-client");
 const { generateImage } = require("../shared/image-gen");
 const { recordPost, getNextLabel, getSummary } = require("../shared/ratio-tracker");

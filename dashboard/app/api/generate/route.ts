@@ -26,6 +26,9 @@ export async function POST(req: NextRequest) {
       ["auto", result.text, result.label, imageResult?.url || null, "draft"]
     );
 
+    const next = await getNextLabel();
+    const summary = await getSummary();
+
     return NextResponse.json({
       success: true,
       post: {
@@ -35,10 +38,10 @@ export async function POST(req: NextRequest) {
         imageUrl: imageResult?.url || null,
       },
       ratioState: {
-        label: getNextLabel()?.label || "VALUE",
-        reason: getNextLabel()?.reason || "",
+        label: next.label,
+        reason: next.reason,
       },
-      ratioSummary: getSummary(),
+      ratioSummary: summary,
     });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });

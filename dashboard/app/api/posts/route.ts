@@ -23,10 +23,9 @@ export async function GET(req: NextRequest) {
       params.push(status);
     }
     if (search) {
-      whereClauses.push(`topic ILIKE $${paramIndex++}`);
-      params.push(`%${search}%`);
-      whereClauses.push(`generated_text ILIKE $${paramIndex++}`);
-      params.push(`%${search}%`);
+      whereClauses.push(`(topic ILIKE $${paramIndex} OR generated_text ILIKE $${paramIndex + 1})`);
+      params.push(`%${search}%`, `%${search}%`);
+      paramIndex += 2;
     }
 
     const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
