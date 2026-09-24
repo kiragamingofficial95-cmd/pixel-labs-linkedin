@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Share2, Check } from "lucide-react";
+import { Copy, Share2, Check, ImageIcon, Loader2 } from "lucide-react";
 
 interface PostCardProps {
   post: {
@@ -25,6 +25,8 @@ interface PostCardProps {
 
 export function PostCard({ post, onCopy, onPost }: PostCardProps) {
   const [copied, setCopied] = useState(false);
+  const [promptLoading, setPromptLoading] = useState(false);
+  const [fetchedPrompt, setFetchedPrompt] = useState<string | null>(null);
 
   function handleCopy() {
     navigator.clipboard.writeText(post.generated_text);
@@ -32,6 +34,27 @@ export function PostCard({ post, onCopy, onPost }: PostCardProps) {
     setTimeout(() => setCopied(false), 2000);
     onCopy?.(post.generated_text);
   }
+
+  async function handleGetPrompt() {
+    setPromptLoading(true);
+    try {
+      const res = await fetch("/api/image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postText: post.generated_text }),
+      });
+      const data = await res.json();
+      if (data.success && data.imagePrompt) {
+        setFetchedPrompt(data.imagePrompt.prompt);
+      }
+    } catch {
+      // leave button in place on failure
+    } finally {
+      setPromptLoading(false);
+    }
+  }
+
+  const shownPrompt = post.image_prompt || fetchedPrompt;
 
   const isValue = post.label === "VALUE";
 
@@ -72,20 +95,31 @@ export function PostCard({ post, onCopy, onPost }: PostCardProps) {
         <img src={post.image_url} alt="Post image" className="rounded-lg border border-navy-600 mb-4" />
       )}
 
-      {!post.image_url && post.image_prompt && (
+      {!post.image_url && shownPrompt && (
         <div className="bg-navy-900 rounded-lg p-4 border border-navy-600 mb-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-lime-400 uppercase tracking-wide">Image prompt</span>
             <button
-              onClick={() => navigator.clipboard.writeText(post.image_prompt || "")}
+              onClick={() => navigator.clipboard.writeText(shownPrompt || "")}
               className="flex items-center gap-1.5 bg-navy-700 hover:bg-navy-600 text-white px-3 py-1.5 rounded text-xs transition-colors"
             >
               <Copy className="w-3 h-3" />
               Copy prompt
             </button>
           </div>
-          <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">{post.image_prompt}</p>
+          <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">{shownPrompt}</p>
         </div>
+      )}
+
+      {!post.image_url && !shownPrompt && (
+        <button
+          onClick={handleGetPrompt}
+          disabled={promptLoading}
+          className="flex items-center gap-1.5 bg-navy-700 hover:bg-navy-600 disabled:opacity-50 text-white px-3 py-1.5 rounded text-xs transition-colors mb-4"
+        >
+          {promptLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <ImageIcon className="w-3 h-3" />}
+          {promptLoading ? "Building prompt..." : "Get image prompt"}
+        </button>
       )}
 
       {post.impressions && (
