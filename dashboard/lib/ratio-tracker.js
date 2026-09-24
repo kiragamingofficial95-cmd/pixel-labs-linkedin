@@ -4,7 +4,7 @@
  */
 
 const { query } = require("./db");
-const { loadState: loadFileState } = require("./shared/ratio-tracker");
+const { loadState: loadFileState } = require("../shared/ratio-tracker");
 
 /**
  * Load the current ratio state from disk or DB.
