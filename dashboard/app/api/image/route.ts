@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     if (!postText) return NextResponse.json({ error: "postText required" }, { status: 400 });
 
     const result = await generateImage(postText, {
-      provider: process.env.IMAGE_PROVIDER || "pollinations",
+      provider: process.env.IMAGE_PROVIDER || "auto",
     });
 
     if (result) return NextResponse.json({ success: true, image: result });

@@ -158,17 +158,23 @@ Or connect your GitHub repo in the Vercel dashboard for automatic deploys.
 
 ---
 
-## Image Generation
+## Image Generation (PART 2b — Gemini primary)
 
-Image generation is optional (off by default). Three providers:
+Scene-based visuals tied to each post's content — not flat quote cards. The generator builds a
+structured prompt from (1) the post's core insight, (2) a topic-matched visual metaphor
+(before/after split, lead dashboard, outreach funnel, pricing steps), (3) a brand style
+directive (dark navy `#0a1628` + electric lime `#39FF14`, clean SaaS illustration).
 
-| Provider | Cost | Setup |
-|----------|------|-------|
-| **Pollinations.ai** | Free | No API key needed (default) |
-| **Together AI FLUX.1-schnell** | Free tier | Needs `TOGETHER_API_KEY` |
-| **Groq images** | TBD | Not yet available |
+Fallback chain (`IMAGE_PROVIDER=auto`, the default):
+1. **Gemini Nano Banana Pro** (`gemini-3-pro-image`, override via `GEMINI_IMAGE_MODEL`) — free AI Studio key
+2. **Gemini Nano Banana** (`gemini-2.5-flash-image`) — same key, second chance
+3. **Pollinations.ai** — free, no key, scene prompt
+4. **Ideogram** — needs `IDEOGRAM_API_KEY`, best for embedded text (10/day free)
+5. Skip the image rather than degrade quality
 
-Image style: dark navy (#0a1628) background, electric lime green (#39FF14) accent, branded quote card with a punchy 1-liner from the post.
+Env: `GEMINI_API_KEY` (required for 1–2), `IDEOGRAM_API_KEY` / `TOGETHER_API_KEY` (optional).
+Gemini returns a base64 data URL stored directly in `image_url`. Note: free-tier image quota is
+small and can 429 — the chain falls through automatically when that happens.
 
 ---
 

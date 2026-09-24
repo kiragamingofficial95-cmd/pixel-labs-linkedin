@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     let imageResult = null;
     if (withImage) {
       imageResult = await generateImage(result.text, {
-        provider: process.env.IMAGE_PROVIDER || "pollinations",
+        provider: process.env.IMAGE_PROVIDER || "auto",
       });
     }
 

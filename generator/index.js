@@ -96,7 +96,7 @@ async function main() {
     if (opts.withImage) {
       console.log("\n🎨 Generating quote-card image...");
       imageResult = await generateImage(result.text, {
-        provider: process.env.IMAGE_PROVIDER || "pollinations",
+        provider: process.env.IMAGE_PROVIDER || "auto",
       });
       if (imageResult) {
         console.log(`   Image URL: ${imageResult.url}`);
