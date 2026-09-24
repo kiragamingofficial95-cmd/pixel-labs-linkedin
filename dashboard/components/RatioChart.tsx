@@ -34,7 +34,7 @@ export function RatioChart() {
         const promoCount = total - valueCount;
         const valuePct = total > 0 ? parseFloat(((valueCount / total) * 100).toFixed(1)) : 0;
 
-        setRatioData({ total, value_count: valueCount, promo_count: promoCount, value_pct });
+        setRatioData({ total, value_count: valueCount, promo_count: promoCount, value_pct: valuePct });
         setHistory(data.posts.slice(-20).reverse());
       }
     } catch (err) {
