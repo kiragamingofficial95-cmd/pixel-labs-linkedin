@@ -115,18 +115,29 @@ function localQuery(text, params) {
     return { rows: loadStore().ratio_state.slice(0, 1), rowCount: 1 };
   }
 
+  // ALTER TABLE ... (no-op in file-store; real DBs execute it)
+  if (/^ALTER TABLE/i.test(t)) {
+    return { rows: [], rowCount: 0 };
+  }
+
   // INSERT INTO posts (topic, generated_text, label, image_url, status) VALUES (...)
   if (/^INSERT INTO posts/i.test(t)) {
     const store = loadStore();
-    const [topic, generated_text, label, image_url, status] = params;
+    const colsMatch = t.match(/INSERT INTO posts \(([^)]+)\)/i);
+    const cols = colsMatch ? colsMatch[1].split(",").map((s) => s.trim()) : ["topic", "generated_text", "label", "image_url", "status"];
+    const val = (name) => {
+      const i = cols.indexOf(name);
+      return i >= 0 ? params[i] : undefined;
+    };
     const row = {
       id: require("crypto").randomUUID(),
       created_at: new Date().toISOString(),
-      topic: topic || "auto",
-      generated_text,
-      label,
-      image_url: image_url || null,
-      status: status || "draft",
+      topic: val("topic") || "auto",
+      generated_text: val("generated_text"),
+      label: val("label"),
+      image_url: val("image_url") || null,
+      image_prompt: val("image_prompt") || null,
+      status: val("status") || "draft",
       posted_at: null,
       impressions: 0,
       likes: 0,

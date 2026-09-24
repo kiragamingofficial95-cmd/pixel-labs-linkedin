@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generatePost } from "../../../lib/groq-client";
 import { recordPost, getNextLabel, getSummary } from "../../../lib/ratio-tracker";
-import { generateImage } from "../../../lib/image-gen";
+import { buildScenePrompt } from "../../../lib/image-gen";
 import { query } from "../../../lib/db";
 
 export async function POST(req: NextRequest) {
@@ -14,16 +14,19 @@ export async function POST(req: NextRequest) {
     const result = await generatePost({ topic: "auto", forcedLabel });
     await recordPost(result.label);
 
-    let imageResult = null;
+    // withImage now means: include a copy-paste image prompt (no server-side rendering).
+    let imagePrompt = null;
     if (withImage) {
-      imageResult = await generateImage(result.text, {
-        provider: process.env.IMAGE_PROVIDER || "auto",
-      });
+      const built = buildScenePrompt(result.text);
+      imagePrompt = { prompt: built.prompt, insight: built.insight, metaphor: built.metaphor };
     }
 
+    try {
+      await query("ALTER TABLE posts ADD COLUMN IF NOT EXISTS image_prompt TEXT");
+    } catch {}
     await query(
-      `INSERT INTO posts (topic, generated_text, label, image_url, status) VALUES ($1, $2, $3, $4, $5)`,
-      ["auto", result.text, result.label, imageResult?.url || null, "draft"]
+      `INSERT INTO posts (topic, generated_text, label, image_url, image_prompt, status) VALUES ($1, $2, $3, $4, $5, $6)`,
+      ["auto", result.text, result.label, null, imagePrompt ? imagePrompt.prompt : null, "draft"]
     );
 
     const next = await getNextLabel();
@@ -35,8 +38,9 @@ export async function POST(req: NextRequest) {
         text: result.text,
         label: result.label,
         model: result.model,
-        imageUrl: imageResult?.url || null,
+        imageUrl: null,
       },
+      imagePrompt,
       ratioState: {
         label: next.label,
         reason: next.reason,

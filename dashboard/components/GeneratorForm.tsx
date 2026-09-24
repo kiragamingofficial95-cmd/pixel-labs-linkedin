@@ -3,11 +3,18 @@
 import { useState } from "react";
 import { Sparkles, Loader2, Copy, ImageIcon } from "lucide-react";
 
+interface ImagePrompt {
+  prompt: string;
+  insight: string;
+  metaphor: string;
+}
+
 interface PostResult {
   text: string;
   label: string;
   model: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
+  imagePrompt?: ImagePrompt | null;
 }
 
 export function GeneratorForm() {
@@ -40,7 +47,7 @@ export function GeneratorForm() {
 
       const data = await res.json();
       if (data.success) {
-        setResult(data.post);
+        setResult({ ...data.post, imagePrompt: data.imagePrompt || null });
         setRatioInfo(`Next label: ${data.ratioState?.label} (${data.ratioState?.reason})`);
       } else {
         alert(`Generation failed: ${data.error}`);
@@ -125,7 +132,7 @@ export function GeneratorForm() {
             />
             <span className="text-sm flex items-center gap-1">
               <ImageIcon className="w-3 h-3" />
-              Generate quote-card image
+              Include image prompt (paste into any AI image tool)
             </span>
           </label>
 
@@ -174,7 +181,25 @@ export function GeneratorForm() {
 
           {result.imageUrl && (
             <div className="mt-4">
-              <img src={result.imageUrl} alt="Quote card" className="rounded-lg border border-navy-600" />
+              <img src={result.imageUrl} alt="Post visual" className="rounded-lg border border-navy-600" />
+            </div>
+          )}
+
+          {result.imagePrompt && (
+            <div className="mt-4 bg-navy-900 rounded-lg p-4 border border-navy-600">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-lime-400 uppercase tracking-wide">Image prompt</span>
+                <button
+                  onClick={() => result.imagePrompt && navigator.clipboard.writeText(result.imagePrompt.prompt)}
+                  className="flex items-center gap-1.5 bg-navy-700 hover:bg-navy-600 text-white px-3 py-1.5 rounded text-xs transition-colors"
+                >
+                  <Copy className="w-3 h-3" />
+                  Copy prompt
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mb-2">Insight: {result.imagePrompt.insight}</p>
+              <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">{result.imagePrompt.prompt}</p>
+              <p className="text-xs text-gray-500 mt-2">Paste into Midjourney, DALL·E, Ideogram, Gemini, or any image tool.</p>
             </div>
           )}
 

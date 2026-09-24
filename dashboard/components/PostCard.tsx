@@ -11,6 +11,7 @@ interface PostCardProps {
     generated_text: string;
     label: string;
     image_url: string | null;
+    image_prompt?: string | null;
     status: string;
     posted_at: string | null;
     impressions: number | null;
@@ -69,6 +70,22 @@ export function PostCard({ post, onCopy, onPost }: PostCardProps) {
 
       {post.image_url && (
         <img src={post.image_url} alt="Post image" className="rounded-lg border border-navy-600 mb-4" />
+      )}
+
+      {!post.image_url && post.image_prompt && (
+        <div className="bg-navy-900 rounded-lg p-4 border border-navy-600 mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-lime-400 uppercase tracking-wide">Image prompt</span>
+            <button
+              onClick={() => navigator.clipboard.writeText(post.image_prompt || "")}
+              className="flex items-center gap-1.5 bg-navy-700 hover:bg-navy-600 text-white px-3 py-1.5 rounded text-xs transition-colors"
+            >
+              <Copy className="w-3 h-3" />
+              Copy prompt
+            </button>
+          </div>
+          <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap">{post.image_prompt}</p>
+        </div>
       )}
 
       {post.impressions && (

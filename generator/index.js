@@ -5,6 +5,9 @@
  * Usage:
  *   node index.js [--topic "<text>"] [--auto] [--force-value] [--force-promo] [--dry-run] [--with-image]
  *
+ * --with-image prints a copy-paste image prompt (scene-based, on-brand) instead of
+ * rendering an image — paste it into Midjourney, DALL·E, Ideogram, Gemini, or any tool.
+ *
  * Examples:
  *   node index.js --auto
  *   node index.js --topic "cold outreach lesson"
@@ -28,6 +31,7 @@ const path = require("path");
 })();
 
 const { generatePost } = require("./groq-client");
+const { buildScenePrompt } = require("../shared/image-gen");
 const { generateImage } = require("../shared/image-gen");
 const { recordPost, getNextLabel, getSummary } = require("../shared/ratio-tracker");
 
@@ -91,29 +95,26 @@ async function main() {
     // Record to ratio tracker
     recordPost(result.label);
 
-    // Process image if requested
-    let imageResult = null;
+    // Build image prompt if requested (copy-paste into any AI image tool)
+    let imagePrompt = null;
     if (opts.withImage) {
-      console.log("\n🎨 Generating quote-card image...");
-      imageResult = await generateImage(result.text, {
-        provider: process.env.IMAGE_PROVIDER || "auto",
-      });
-      if (imageResult) {
-        console.log(`   Image URL: ${imageResult.url}`);
-        console.log(`   Quote extracted: "${imageResult.quote}"`);
-      } else {
-        console.log("   ⚠️  Image generation failed — see error above");
-      }
+      console.log("\n🎨 Building image prompt...");
+      const built = buildScenePrompt(result.text);
+      imagePrompt = built.prompt;
+      console.log(`   Insight: "${built.insight}"`);
+      console.log(`   Metaphor: ${built.metaphor}`);
     }
 
     if (opts.dryRun) {
       console.log("\n--- DRY RUN OUTPUT ---");
       console.log(result.text);
       console.log(`\nLabel: [${result.label}]`);
-      if (imageResult) {
-        console.log(`Image: ${imageResult.url}`);
+      if (imagePrompt) {
+        console.log("\n--- IMAGE PROMPT (paste into any AI image tool) ---");
+        console.log(imagePrompt);
+        console.log("--- END IMAGE PROMPT ---");
       }
-      console.log("--- END DRY RUN ---\n");
+      console.log("\n--- END DRY RUN ---");
       console.log("No database write in dry-run mode.");
     } else {
       // Save to database (see dashboard/lib/db.js for schema)
@@ -121,7 +122,8 @@ async function main() {
         topic: topic === "auto" ? "auto" : opts.topic,
         generated_text: result.text,
         label: result.label,
-        image_url: imageResult?.url || null,
+        image_url: null,
+        image_prompt: imagePrompt,
         status: "draft",
       });
 
@@ -129,8 +131,10 @@ async function main() {
       console.log(`Label: [${result.label}]`);
       console.log(`Model: ${result.model}`);
       console.log(`Ratio updated: ${getSummary()}`);
-      if (imageResult) {
-        console.log(`Image: ${imageResult.url}`);
+      if (imagePrompt) {
+        console.log("\n--- IMAGE PROMPT (paste into any AI image tool) ---");
+        console.log(imagePrompt);
+        console.log("--- END IMAGE PROMPT ---");
       }
       console.log("\n📋 Post text:\n");
       console.log(result.text);

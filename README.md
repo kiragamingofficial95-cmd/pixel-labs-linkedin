@@ -158,23 +158,19 @@ Or connect your GitHub repo in the Vercel dashboard for automatic deploys.
 
 ---
 
-## Image Generation (PART 2b — Gemini primary)
+## Image Prompts (PART 2b — prompt-first workflow)
 
-Scene-based visuals tied to each post's content — not flat quote cards. The generator builds a
-structured prompt from (1) the post's core insight, (2) a topic-matched visual metaphor
-(before/after split, lead dashboard, outreach funnel, pricing steps), (3) a brand style
-directive (dark navy `#0a1628` + electric lime `#39FF14`, clean SaaS illustration).
+No server-side rendering. Every post gets a copy-paste **image prompt** built from
+(1) the post's core insight, (2) a topic-matched visual metaphor (before/after split,
+lead dashboard, outreach funnel, pricing steps), (3) a brand style directive
+(dark navy `#0a1628` + electric lime `#39FF14`, clean SaaS illustration).
+Paste it into Midjourney, DALL·E, Ideogram, Gemini, or any image tool.
 
-Fallback chain (`IMAGE_PROVIDER=auto`, the default):
-1. **Gemini Nano Banana Pro** (`gemini-3-pro-image`, override via `GEMINI_IMAGE_MODEL`) — free AI Studio key
-2. **Gemini Nano Banana** (`gemini-2.5-flash-image`) — same key, second chance
-3. **Ideogram** — needs `IDEOGRAM_API_KEY` with credits; best for embedded text (free tier 10/day)
-4. **Pollinations.ai** — free, no key, scene prompt
-5. Skip the image rather than degrade quality
-
-Env: `GEMINI_API_KEY` (required for 1–2), `IDEOGRAM_API_KEY` / `TOGETHER_API_KEY` (optional).
-Gemini returns a base64 data URL stored directly in `image_url`. Note: free-tier image quota is
-small and can 429 — the chain falls through automatically when that happens.
+- CLI: `node index.js --auto --with-image` prints the prompt; saved as `image_prompt` on the draft.
+- Dashboard: tick "Include image prompt" in the Generator tab; the prompt shows with a copy
+  button and is stored on the post (`image_prompt` column, auto-migrated).
+- API: `POST /api/image` with `{ topic }` returns the full package `{ post, imagePrompt }`;
+  with `{ postText }` it returns just `{ imagePrompt }` for existing text.
 
 ---
 

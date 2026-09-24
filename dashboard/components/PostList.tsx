@@ -10,6 +10,7 @@ interface Post {
   generated_text: string;
   label: string;
   image_url: string | null;
+  image_prompt?: string | null;
   status: string;
   posted_at: string | null;
   impressions: number | null;

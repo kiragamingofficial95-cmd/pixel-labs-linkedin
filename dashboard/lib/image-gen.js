@@ -49,7 +49,7 @@ function pickMetaphor(insight) {
       "into a laptop showing a contractor website, with an upward lime-green trend line"
     );
   }
-  if (/(outreach|cold call|cold email|dm|message|funnel|reply|inbox|follow-up)/.test(s)) {
+  if (/(outreach|cold call|cold email|\bemail\b|\bdm\b|message|funnel|reply|inbox|follow-up|instagram|\big\b)/.test(s)) {
     return (
       "an isometric illustration of an outreach funnel: envelopes, phones and chat bubbles pouring " +
       "into the top of a wide funnel, booked consultation calls coming out the bottom"
@@ -69,7 +69,7 @@ function pickMetaphor(insight) {
 
 /**
  * Build the structured scene prompt from a post.
- * Returns { insight, prompt }.
+ * Returns { insight, metaphor, prompt } — paste `prompt` into any AI image tool.
  */
 function buildScenePrompt(postText) {
   const insight = extractQuote(postText);
@@ -79,7 +79,7 @@ function buildScenePrompt(postText) {
     "Subject: " + insight + " " +
     "Visual metaphor: " + metaphor + ". " +
     "Style: " + STYLE_DIRECTIVE + ".";
-  return { insight, prompt };
+  return { insight, metaphor, prompt };
 }
 
 /**
