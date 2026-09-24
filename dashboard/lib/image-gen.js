@@ -2,7 +2,7 @@
  * Image Generator — scene-based visuals, Gemini primary.
  *
  * Chain (auto mode): Gemini Pro (Nano Banana Pro) → Gemini Flash (Nano Banana)
- *   → Pollinations.ai → Ideogram (if key) → skip (null).
+ *   → Ideogram (if key, default visual engine) → Pollinations.ai → skip (null).
  * Set IMAGE_PROVIDER to force one: "gemini" | "pollinations" | "together" | "ideogram".
  *
  * Strategy: scene-based visuals tied to the post's content — NOT flat quote cards.
@@ -183,7 +183,7 @@ async function generateIdeogram(postText, apiKey) {
 
 /**
  * Main entry point.
- * provider "auto" (default): Gemini Pro → Gemini Flash → Pollinations → Ideogram → null.
+ * provider "auto" (default): Gemini (pro then flash) → Ideogram → Pollinations → null.
  * Explicit provider: tries Gemini (pro then flash) / pollinations / together / ideogram once.
  */
 async function generateImage(postText, options) {
@@ -231,9 +231,9 @@ async function generateImage(postText, options) {
   if (provider === "auto") {
     let r = await tryGemini();
     if (r) return r;
-    r = await tryPollinations();
-    if (r) return r;
     r = await tryIdeogram();
+    if (r) return r;
+    r = await tryPollinations();
     if (r) return r;
     console.error("All image providers failed:\n" + errors.join("\n"));
     return null;

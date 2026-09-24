@@ -168,8 +168,8 @@ directive (dark navy `#0a1628` + electric lime `#39FF14`, clean SaaS illustratio
 Fallback chain (`IMAGE_PROVIDER=auto`, the default):
 1. **Gemini Nano Banana Pro** (`gemini-3-pro-image`, override via `GEMINI_IMAGE_MODEL`) — free AI Studio key
 2. **Gemini Nano Banana** (`gemini-2.5-flash-image`) — same key, second chance
-3. **Pollinations.ai** — free, no key, scene prompt
-4. **Ideogram** — needs `IDEOGRAM_API_KEY`, best for embedded text (10/day free)
+3. **Ideogram** — needs `IDEOGRAM_API_KEY` with credits; best for embedded text (free tier 10/day)
+4. **Pollinations.ai** — free, no key, scene prompt
 5. Skip the image rather than degrade quality
 
 Env: `GEMINI_API_KEY` (required for 1–2), `IDEOGRAM_API_KEY` / `TOGETHER_API_KEY` (optional).
