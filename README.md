@@ -185,7 +185,7 @@ Currently **not implemented** — manual copy-to-clipboard from the dashboard is
 
 ## Important Notes
 
-⚠️ **`llama-3.3-70b-versatile` deprecation**: As of August 2026, this model has been flagged as deprecated on Groq. The generator includes a fallback to `groq/llama-3.1-8b-instant` if the primary model fails. Consider migrating to `groq/llama-3.1-70b-versatile` or another available model when the deprecation takes effect.
+⚠️ **Groq models**: `llama-3.3-70b-versatile` was retired from Groq in Aug 2026. The generator uses `openai/gpt-oss-120b` (primary) with `openai/gpt-oss-20b` fallback — verified working.
 
 ⚠️ **Image generation on Groq**: Groq primarily supports text generation. Image generation falls back to Pollinations.ai or Together AI.
 

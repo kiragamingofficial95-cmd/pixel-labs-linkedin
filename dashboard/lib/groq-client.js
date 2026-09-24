@@ -1,11 +1,15 @@
 /**
- * Groq API client — generated in dashboard context.
- * Duplicate of generator/groq-client.js but using dashboard's local paths.
+ * Groq API client — dashboard context (uses dashboard's local shared/ paths).
+ * Primary: openai/gpt-oss-120b, fallback: openai/gpt-oss-20b
+ * (llama models were retired from Groq in Aug 2026).
  */
 
 const Groq = require("groq-sdk");
 const { buildSystemPrompt } = require("../shared/prompts");
 const { loadState } = require("../shared/ratio-tracker");
+
+const PRIMARY_MODEL = "openai/gpt-oss-120b";
+const FALLBACK_MODEL = "openai/gpt-oss-20b";
 
 let groqClient = null;
 
@@ -50,13 +54,15 @@ async function generatePost({ topic = "auto", forcedLabel = null } = {}) {
     userContent += `\n\nWrite this as a first-person post from Varad, founder of Pixel Labs, about: ${topic}`;
   }
 
+  const messages = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: userContent },
+  ];
+
   try {
     const completion = await client.chat.completions.create({
-      model: "groq/llama-3.3-70b-versatile",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userContent },
-      ],
+      model: PRIMARY_MODEL,
+      messages,
       temperature: 0.7,
       max_tokens: 500,
       stream: false,
@@ -66,23 +72,20 @@ async function generatePost({ topic = "auto", forcedLabel = null } = {}) {
     const labelMatch = text.match(/^\[(VALUE|PROMO)\]/);
     const label = labelMatch ? labelMatch[1] : "VALUE";
 
-    return { text, label, model: "groq/llama-3.3-70b-versatile" };
+    return { text, label, model: PRIMARY_MODEL };
   } catch (err) {
-    console.warn("llama-3.3-70b-versatile failed, trying fallback...", err.message);
+    console.warn(PRIMARY_MODEL + " failed, trying fallback...", err.message);
     try {
       const fallbackCompletion = await client.chat.completions.create({
-        model: "groq/llama-3.1-8b-instant",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userContent },
-        ],
+        model: FALLBACK_MODEL,
+        messages,
         temperature: 0.7,
         max_tokens: 500,
         stream: false,
       });
       const text = fallbackCompletion.choices[0].message.content.trim();
       const labelMatch = text.match(/^\[(VALUE|PROMO)\]/);
-      return { text, label: labelMatch ? labelMatch[1] : "VALUE", model: "groq/llama-3.1-8b-instant" };
+      return { text, label: labelMatch ? labelMatch[1] : "VALUE", model: FALLBACK_MODEL };
     } catch (fallbackErr) {
       throw new Error(`Groq generation failed: ${err.message}`);
     }
@@ -99,4 +102,4 @@ function getNextLabel() {
   return require("../shared/ratio-tracker").getNextLabel();
 }
 
-module.exports = { generatePost, getClient };
+module.exports = { generatePost, getClient, PRIMARY_MODEL, FALLBACK_MODEL };

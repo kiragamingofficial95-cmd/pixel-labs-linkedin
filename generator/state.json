@@ -1,1 +1,12 @@
-{"totalPosts":0,"valuePosts":0,"promoPosts":0,"lastAction":null,"history":[]}
+{
+  "totalPosts": 1,
+  "valuePosts": 1,
+  "promoPosts": 0,
+  "lastAction": "VALUE",
+  "history": [
+    {
+      "label": "VALUE",
+      "timestamp": "2026-09-24T05:24:48.865Z"
+    }
+  ]
+}
