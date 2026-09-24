@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generatePost } from "../../../../lib/groq-client";
-import { recordPost, getNextLabel, getSummary } from "../../../../lib/ratio-tracker";
-import { generateImage } from "../../../../lib/image-gen";
-import { query } from "../../../../lib/db";
+import { generatePost } from "../../../lib/groq-client";
+import { recordPost, getNextLabel, getSummary } from "../../../lib/ratio-tracker";
+import { generateImage } from "../../../lib/image-gen";
+import { query } from "../../../lib/db";
 
 export async function POST(req: NextRequest) {
   try {

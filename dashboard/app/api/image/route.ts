@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateImage } from "../../../../lib/image-gen";
+import { generateImage } from "../../../lib/image-gen";
 
 export async function POST(req: NextRequest) {
   try {
