@@ -18,7 +18,7 @@ const crypto = require("crypto");
  */
 function extractQuote(text) {
   // Remove the [VALUE] or [PROMO] label first
-  const body = text.replace(/^\[(VALUE|PROMO)\]\n/, "").trim();
+  const body = text.replace(/^\[(VALUE|PROMO)\]\s*/, "").trim();
 
   // Split into sentences
   const sentences = body.split(/(?<=[.!?])\s+/).filter(s => s.length > 10);

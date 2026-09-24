@@ -3,7 +3,7 @@
  */
 
 async function extractQuote(text) {
-  const body = text.replace(/^\[(VALUE|PROMO)\]\n/, "").trim();
+  const body = text.replace(/^\[(VALUE|PROMO)\]\s*/, "").trim();
   const sentences = body.split(/(?<=[.!?])\s+/).filter(s => s.length > 10);
   if (sentences.length === 0) return body.slice(0, 120);
   const short = sentences.filter(s => s.length < 160);
