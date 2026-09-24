@@ -1,0 +1,19 @@
+{
+  "name": "generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pixel Labs LinkedIn Post Generator — Groq-powered text + image generation",
+  "main": "index.js",
+  "bin": {
+    "pixel-post": "index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "groq-sdk": "^0.5.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

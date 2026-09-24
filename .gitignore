@@ -1,0 +1,16 @@
+node_modules/
+.next/
+dist/
+.env
+.env.local
+.env.production
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+drafts.json
+generator/drafts.json
+**/node_modules/
+*.tsbuildinfo
